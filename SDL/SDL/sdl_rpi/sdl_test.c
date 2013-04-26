@@ -23,7 +23,7 @@ int screenH;
 int screenW;
 
 void takeScreenshot(void) {
-    system("./adb shell screencap -p /sdcard/dump1.png; adb shell cp /sdcard/dump1.png /sdcard/dump2.png");
+    system("./adb shell screencap -p /sdcard/dump1.png; ./adb shell cp /sdcard/dump1.png /sdcard/dump2.png");
 }
 
 void transferScreenshot(void) {
@@ -155,10 +155,10 @@ int doSDL(void) {
 
     char key;
     while(1){
-        scanf("%c", &key);
+        //scanf("%c", &key);
         // if E or e, exit
-        if (key == ' ')
-	    break;
+        //if (key == ' ')
+	    //break;
 
         pthread_create(&thread[1], NULL, get_screen, NULL);
 
@@ -175,7 +175,7 @@ int doSDL(void) {
         rc = pthread_join(thread[2], &status[2]);
 
         if (value != image->h) {
-	    scale = screenW/(image->w);
+	    scale = screenW/(image->w)-.1;
 	    //scale = 1;
 	    if (prevValue != image->h) {
 	        screen = SDL_SetVideoMode((image->h)*scale,
@@ -187,7 +187,7 @@ int doSDL(void) {
         }
 
         else if (value == image->h) {
-	    scale = screenH/(image->h);
+	    scale = screenH/(image->h)-.1;
 	    //scale = 0.5;
 	    if (prevValue != image->h) {
 	        screen = SDL_SetVideoMode((image->w)*scale,
