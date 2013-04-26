@@ -1,0 +1,8 @@
+CC = gcc
+CFLAGS = `sdl-config --libs --cflags` -lSDL_image -lSDL_gfx -lpthread
+
+doAuto : sdl_test.c
+	${CC} -o doAuto sdl_test.c p2p_no_ui_api.c ${CFLAGS}
+
+clean :
+	rm -rf doAuto

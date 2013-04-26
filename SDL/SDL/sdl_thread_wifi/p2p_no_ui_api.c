@@ -1,6 +1,9 @@
 
 #include "p2p_test.h"
 
+//#define P2P_AUTO 1
+//#define DHCP 1
+
 unsigned int wps_pin_checksum(unsigned int pin)
 {
 	unsigned int accum = 0;
@@ -418,13 +421,13 @@ void p2p_pincode(struct p2p *p, char *ins_no, char *ins_no_again)
 	int pin_check=0;
 	p->p2p_get=0;
 	p->show_scan_result = 1;
-	ui_screen(p);
+	system("clear"); //ui_screen(p);
 	printf("%s", ins_no);
 	scanf("%d",&pin_check);
 	while( wps_pin_checksum(pin_check) != 0 )
 	{
 		p->show_scan_result = 1;
-		ui_screen(p);
+		system("clear"); //ui_screen(p);
 		printf("%s", ins_no_again);	
 		scanf("%d",&pin_check);
 	}
@@ -433,20 +436,18 @@ void p2p_pincode(struct p2p *p, char *ins_no, char *ins_no_again)
 
 void p2p_devaddr(struct p2p *p)
 {
-	int c;
-	struct scan *pscan_pool;
+	//int c;
+	//struct scan *pscan_pool;
 
 	p->p2p_get=0;
 	
 	//scanf("%d", &c);
-	c = 1;
-	pscan_pool = &p->scan_pool[c-1];
-	/******** comment out above, add below ********/
-	//pscan_pool = 32:85:A9:2F:4F:D7;
+	//pscan_pool = &p->scan_pool[c-1];
+	//strncpy(p->peer_devaddr, pscan_pool->addr, 17);
 	strncpy(p->peer_devaddr, "32:85:A9:2F:4F:D7", 17);
 
-	if( pscan_pool->go == 1)
-		p->connect_go = 1;
+	//if( pscan_pool->go == 1)
+	//p->connect_go = 1;
 }
 
 void p2p_role(struct p2p *p, int flag)
@@ -595,11 +596,11 @@ void p2p_prov_disc(struct p2p *p, char *msg, char *dis_msg, char *label_msg)
 
 	p->p2p_get=0;
 	p->show_scan_result = 1;
-	//ui_screen(p);
-	printf("%s", msg);
+	system("clear"); //ui_screen(p);
+	//printf("%s", msg);
 	//scanf("%d",&wps_cm);
-	wps_cm = 2;
-	
+	wps_cm = 1;
+
 	if(p->res == 0)
 	{
 		p->res = 1;
@@ -650,7 +651,7 @@ void p2p_prov_disc(struct p2p *p, char *msg, char *dis_msg, char *label_msg)
 		}
 		else if( wps_cm==0 || wps_cm==3 )
 		{
-			ui_screen(p);
+			system("clear"); //ui_screen(p);
 			if( wps_cm ==0 )
 				printf("%s", dis_msg);	
 			else if( wps_cm == 3 )
@@ -671,7 +672,7 @@ void p2p_prov_disc(struct p2p *p, char *msg, char *dis_msg, char *label_msg)
 		p->p2p_get = 1;
 		memset( p->print_line, 0x00, CMD_SZ );
 		sprintf( p->print_line, "Issue provision discovery fail" );
-		ui_screen(p);	
+		system("clear"); //ui_screen(p);	
 
 #ifdef P2P_AUTO		
 		pthread_create(&p->pthread, NULL, &polling_status, (void *)p);
@@ -691,7 +692,7 @@ void p2p_prov_disc(struct p2p *p, char *msg, char *dis_msg, char *label_msg)
 	int wps_cm;
 	p->p2p_get=0;
 	p->show_scan_result = 1;
-	ui_screen(p);
+	system("clear"); //ui_screen(p);
 	printf("%s", msg);
 	scanf("%d",&wps_cm);
 	memset( p->cmd, 0x00, CMD_SZ );
@@ -719,7 +720,7 @@ void p2p_set_nego(struct p2p *p)
 	p->p2p_get=1;
 	memset( p->print_line, 0x00, CMD_SZ );
 	strcpy( p->print_line, p->nego_msg);
-	ui_screen(p);
+	system("clear"); //ui_screen(p);
 	
 	memset( p->cmd, 0x00, CMD_SZ );
 	sprintf( p->cmd, "iwpriv %s p2p_set nego=%s ", p->ifname, p->peer_devaddr);
@@ -744,7 +745,7 @@ void p2p_set_nego(struct p2p *p)
 		}
 		else
 		{
-			ui_screen(p);
+			system("clear"); //ui_screen(p);
 			usleep( NEGO_QUERY_INTERVAL );
 			p2p_status(p, 1);
 		}
@@ -757,7 +758,7 @@ void p2p_set_nego(struct p2p *p)
 		memset( p->print_line, 0x00, CMD_SZ );
 		sprintf( p->print_line, "%s", p->ok_msg );
 		p2p_ifaddr(p);
-		ui_screen(p);		
+		system("clear"); //ui_screen(p);		
 		
 		if( p->role == P2P_ROLE_CLIENT )
 		{
@@ -775,7 +776,7 @@ void p2p_set_nego(struct p2p *p)
 		p2p_status(p, 0);
 		memset( p->print_line, 0x00, CMD_SZ );
 		sprintf( p->print_line, "Status= %d, %s", p->status, p->fail_msg );
-		ui_screen(p);
+		system("clear"); //ui_screen(p);
 
 #ifdef P2P_ATUO		
 		pthread_create(&p->pthread, NULL, &polling_status, (void *)p);
@@ -833,7 +834,7 @@ void p2p_client_mode(struct p2p *p)
 	p->p2p_get=1;
 	memset( p->print_line, 0x00, CMD_SZ );
 	strcpy( p->print_line, "Start wpa_supplicant");
-	ui_screen(p);
+	system("clear"); //ui_screen(p);
 
 	usleep( SUPPLICANT_INIT_TIME );
 	
@@ -864,7 +865,7 @@ void p2p_client_mode(struct p2p *p)
 						memset( p->cmd, 0x00, CMD_SZ );
 						sprintf( p->cmd, "dhclient %s", p->ifname);
 						system( p->cmd );
-#endif //DHCP
+#endif
 					}
 					else if( strncmp( p->parse, "wpa_state=INACTIVE", 18) == 0 ){
 						inactive_count++;
@@ -887,7 +888,7 @@ void p2p_client_mode(struct p2p *p)
 						p->p2p_get=1;	
 						memset(p->print_line, 0x00, CMD_SZ);
 						sprintf(p->print_line, "Restart WPS");
-						ui_screen(p);
+						system("clear"); //ui_screen(p);
 					}
 					else
 					{
@@ -899,7 +900,7 @@ void p2p_client_mode(struct p2p *p)
 							}
 						}	
 						sprintf(p->print_line, "%s", p->parse);
-						ui_screen(p);
+						system("clear"); //ui_screen(p);
 					}
 					
 					break;
@@ -928,7 +929,7 @@ void p2p_go_mode(struct p2p *p)
 	p->p2p_get=1;
 	memset( p->print_line, 0x00, CMD_SZ );
 	strcpy( p->print_line, "Start hostapd");
-	ui_screen(p);
+	system("clear"); //ui_screen(p);
 
 	if(p->ap_open != _TRUE)
 	{
@@ -960,7 +961,7 @@ void p2p_go_mode(struct p2p *p)
 				}
 			}		
 			sprintf(p->print_line, "%s", p->parse);
-			ui_screen(p);
+			system("clear"); //ui_screen(p);
 #ifdef DHCP
 			memset( p->cmd, 0x00, CMD_SZ );
 			sprintf( p->cmd, "ifconfig %s 192.168.1.254", p->ifname);
@@ -1000,7 +1001,7 @@ void p2p_go_mode(struct p2p *p)
 			p->p2p_get=1;
 			memset( p->print_line, 0x00, CMD_SZ );
 			sprintf( p->print_line, "hostapd open, count:%d", count);
-			ui_screen(p);
+			system("clear"); //ui_screen(p);
 		}
 	}
 
@@ -1052,7 +1053,7 @@ void p2p_set_opch(struct p2p *p, char *msg, int print)
 	if(print == 1)
 	{
 		p->show_scan_result = 1;
-		ui_screen(p);
+		system("clear"); //ui_screen(p);
 		printf("%s", msg);	
 		scanf("%d",&p->op_ch);
 	}
@@ -1067,7 +1068,7 @@ void p2p_softap_ssid(struct p2p *p, char *msg, int print)
 	if(print == 1)
 	{
 		p->show_scan_result = 1;
-		ui_screen(p);
+		system("clear"); //ui_screen(p);
 		printf("%s", msg);
 		scanf("%s",p->apd_ssid);
 	}
@@ -1080,7 +1081,7 @@ void p2p_softap_ssid(struct p2p *p, char *msg, int print)
 void p2p_listen_ch(struct p2p *p, char *msg)
 {
 	p->show_scan_result = 1;
-	ui_screen(p);
+	system("clear"); //ui_screen(p);
 	printf("%s", msg);
 	scanf("%d",&p->listen_ch);
 	
@@ -1299,7 +1300,7 @@ void *polling_status(void *arg)
 			p2p_peer_req_cm(p, peer_req_cm);
 			p2p_peer_info(p, p->peer_devaddr, peer_req_cm);
 
-			ui_screen(p);
+			system("clear"); //ui_screen(p);
 
 			//strncpy(p->peer_devaddr, peer_devaddr, 17);
 			if( (strncmp( peer_req_cm, "dis", 3) == 0) || (strncmp( peer_req_cm, "lab", 3) == 0) )
@@ -1355,7 +1356,7 @@ void *polling_client(void *arg)
 			p2p_peer_req_cm(p, peer_req_cm);
 			p2p_peer_info(p, p->peer_devaddr, peer_req_cm);
 
-			ui_screen(p);
+			system("clear"); //ui_screen(p);
 
 			//strncpy(p->peer_devaddr, peer_devaddr, 17);
 			if( (strncmp( peer_req_cm, "dis", 3) == 0) || (strncmp( peer_req_cm, "lab", 3) == 0) )

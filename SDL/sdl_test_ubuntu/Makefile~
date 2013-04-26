@@ -1,0 +1,8 @@
+CC = gcc
+CFLAGS = `sdl-config --cflags --libs` -lSDL_image -lSDL
+
+sdl_test : sdl_test.c
+	${CC} ${CFLAGS} -o sdltest sdl_test.c
+
+clean :
+	rm -rf sdl_test
