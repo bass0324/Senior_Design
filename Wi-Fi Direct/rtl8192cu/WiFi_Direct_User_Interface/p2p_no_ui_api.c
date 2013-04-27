@@ -438,13 +438,28 @@ void p2p_devaddr(struct p2p *p)
 {
 	//int c;
 	//struct scan *pscan_pool;
+	FILE* file;
+    char buffer[256];
+    char value;
+    if((file = popen("cat ./device.txt", "r"))==NULL)
+    {
+        fprintf(stderr, "can't get size\n");
+        return 0;
+    }
+    while(fgets(buffer, sizeof(buffer), file) != 0)
+    {
+		value = buffer;
+    }
+    
+    pclose(file);
 
 	p->p2p_get=0;
 	
 	//scanf("%d", &c);
 	//pscan_pool = &p->scan_pool[c-1];
 	//strncpy(p->peer_devaddr, pscan_pool->addr, 17);
-	strncpy(p->peer_devaddr, "32:85:A9:2F:4F:D7", 17);
+	//strncpy(p->peer_devaddr, "32:85:A9:2F:4F:D7", 17);
+	strncpy(p->peer_devaddr, value, 17);
 
 	//if( pscan_pool->go == 1)
 	//p->connect_go = 1;
