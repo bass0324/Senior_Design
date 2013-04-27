@@ -19,15 +19,15 @@ pthread_mutex_t mutexVALUE;
 SDL_Surface *image = NULL;
 pthread_mutex_t mutexIMAGE;
 
-int screenH;
-int screenW;
+double screenH;
+double screenW;
 
 void takeScreenshot(void) {
     system("adb shell screencap -p /sdcard/dump1.png; adb shell cp /sdcard/dump1.png /sdcard/dump2.png");
 }
 
 void transferScreenshot(void) {
-    system("adb pull /sdcard/dump2.png dump2.png");
+    system("adb pull /sdcard/dump2.png dump.png");
 }
 
 int getHeight() {
@@ -73,8 +73,8 @@ int getScreenRes() {
     // close file  
     close(fbfd);
 
-    screenW = var_info.yres;
-    screenH = var_info.xres;
+    screenW = (double)var_info.yres;
+    screenH = (double)var_info.xres;
 
     SDL_Delay(1000);
   
@@ -97,12 +97,12 @@ void *get_height(void *e) {
 
 void *load_image(void *f) {
     pthread_mutex_lock (&mutexIMAGE);
-    image = IMG_Load("dump2.png");
+    image = IMG_Load("dump.png");
     pthread_mutex_unlock(&mutexIMAGE);
 }
 
 int doSDL(void) {
-    system("adb connect 192.168.49.1");
+    //system("adb connect 192.168.49.1");
     SDL_Surface *screen = NULL;
     SDL_Surface *rot = NULL;
     const SDL_VideoInfo *videoInfo = NULL;
@@ -154,9 +154,11 @@ int doSDL(void) {
     /*-----------------------------------------------------------------*/
 
     char key;
-	double scaleH;
-	double scaleW;
-    while(1){
+    double scaleH;
+    double scaleW;
+    int i;
+    while(i<10){
+        i = i + 1;
         //scanf("%c", &key);
         // if E or e, exit
         //if (key == ' ')
@@ -176,28 +178,31 @@ int doSDL(void) {
 
         rc = pthread_join(thread[2], &status[2]);
 		
-		if (prevValue != image->h) {
-				screen = SDL_SetVideoMode(screenW-64,
-										  screenH-64,
-										  videoInfo->vfmt->BitsPerPixel,
-										  SDL_SWSURFACE);
+		if (prevValue != value) {
+				SDL_SetVideoMode((screenH),
+							  (screenW),
+							  16,
+							  SDL_SWSURFACE);
+				screen = SDL_GetVideoSurface();
 		}
 
         if (value != image->h) {
-			scaleW = (double)((screenW-64)/(image->h));
-			scaleH = (double)((screenH-64)/(image->w));
+			scaleW = ((screenW-10)/(double)(image->w));
+			scaleH = ((screenH-10)/(double)(image->h));
 			if (scaleW < scaleH) {
 			    scale = scaleW;
 			}
 			else {
 			    scale = scaleH;
 			}
+			//scale = 0.5;
 			rot = rotozoomSurface( image, 90, scale, SMOOTHING_ON );
         }
 
-        else if (value == image->h) {
-		    scaleW = (double)((screenW-64)/(image->w));
-			scaleH = (double)((screenH-64)/(image->h));
+        else {
+		    scaleW = ((screenW)/(double)(image->h));
+		    scaleH = ((screenH)/(double)(image->w));
+		    printf("%f %f", scaleW, scaleH);
 			if (scaleW < scaleH) {
 			    scale = scaleW;
 			}
@@ -209,12 +214,23 @@ int doSDL(void) {
 
         SDL_FreeSurface(image);
 
-        SDL_BlitSurface(SDL_Surface *SDL_DisplayFormat(rot);, NULL, screen, 0);
+	int x = (screenH - rot->w)/2;
+	int y = (screenW - rot->h)/2;
+	SDL_Rect location;
+	location.x = x;
+	location.y = y;
+	location.w = 1;
+	location.h = 1;
+	
+	//image = SDL_DisplayFormat(rot);
 
-        SDL_Flip(screen);
-        //SDL_UpdateRect(screen, 0, 0, 0, 0);
+        SDL_BlitSurface(rot, NULL, screen, &location);
+
+        SDL_UpdateRect(screen, x, y, (rot->w), rot->h);
 
         SDL_FreeSurface(rot);
+
+	//SDL_FreeSurface(image);
 
         prevValue = value;
 
