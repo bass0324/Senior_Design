@@ -102,7 +102,7 @@ void *load_image(void *f) {
 }
 
 int doSDL(void) {
-    //system("adb connect 192.168.49.1");
+    system("adb connect 192.168.49.1");
     SDL_Surface *screen = NULL;
     SDL_Surface *rot = NULL;
     const SDL_VideoInfo *videoInfo = NULL;
@@ -157,7 +157,7 @@ int doSDL(void) {
     double scaleH;
     double scaleW;
     int i;
-    while(i<10){
+    while(1){
         i = i + 1;
         //scanf("%c", &key);
         // if E or e, exit
