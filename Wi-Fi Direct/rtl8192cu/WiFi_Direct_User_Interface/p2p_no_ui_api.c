@@ -444,7 +444,7 @@ void p2p_devaddr(struct p2p *p)
     if((file = popen("cat ./device.txt", "r"))==NULL)
     {
         fprintf(stderr, "can't get size\n");
-        return 0;
+        //return 0;
     }
     while(fgets(buffer, sizeof(buffer), file) != 0)
     {
