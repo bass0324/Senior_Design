@@ -23,18 +23,18 @@ int screenH;
 int screenW;
 
 void takeScreenshot(void) {
-    system("./adb shell screencap -p /sdcard/dump1.png; ./adb shell cp /sdcard/dump1.png /sdcard/dump2.png");
+    system("adb shell screencap -p /sdcard/dump1.png; adb shell cp /sdcard/dump1.png /sdcard/dump2.png");
 }
 
 void transferScreenshot(void) {
-    system("./adb pull /sdcard/dump2.png dump2.png");
+    system("adb pull /sdcard/dump2.png dump2.png");
 }
 
 int getHeight() {
     FILE* file;
     char buffer[256];
     int value;
-    if((file = popen("./adb shell dumpsys window | grep cur= | awk -F cur= '{print $NF}' | awk -F ' ' '{print $1}' | awk -F 'x' '{print $NF}'", "r"))==NULL)
+    if((file = popen("adb shell dumpsys window | grep cur= | awk -F cur= '{print $NF}' | awk -F ' ' '{print $1}' | awk -F 'x' '{print $NF}'", "r"))==NULL)
     {
         fprintf(stderr, "can't get size\n");
         return 0;
@@ -102,7 +102,7 @@ void *load_image(void *f) {
 }
 
 int doSDL(void) {
-    system("./adb connect 192.168.49.1");
+    system("adb connect 192.168.49.1");
     SDL_Surface *screen = NULL;
     SDL_Surface *rot = NULL;
     const SDL_VideoInfo *videoInfo = NULL;
@@ -154,6 +154,8 @@ int doSDL(void) {
     /*-----------------------------------------------------------------*/
 
     char key;
+	double scaleH;
+	double scaleW;
     while(1){
         //scanf("%c", &key);
         // if E or e, exit
@@ -173,36 +175,43 @@ int doSDL(void) {
         pthread_create(&thread[2], NULL, load_image, NULL);
 
         rc = pthread_join(thread[2], &status[2]);
+		
+		if (prevValue != image->h) {
+				screen = SDL_SetVideoMode(screenW-64,
+										  screenH-64,
+										  videoInfo->vfmt->BitsPerPixel,
+										  SDL_SWSURFACE);
+		}
 
         if (value != image->h) {
-	    scale = screenW/(image->w)-.1;
-	    //scale = 1;
-	    if (prevValue != image->h) {
-	        screen = SDL_SetVideoMode((image->h)*scale,
-			                  (image->w)*scale,
-			                  videoInfo->vfmt->BitsPerPixel,
-			                  SDL_SWSURFACE);
-	    }
-	    rot = rotozoomSurface( image, 90, scale, SMOOTHING_ON );
+			scaleW = (double)((screenW-64)/(image->h));
+			scaleH = (double)((screenH-64)/(image->w));
+			if (scaleW < scaleH) {
+			    scale = scaleW;
+			}
+			else {
+			    scale = scaleH;
+			}
+			rot = rotozoomSurface( image, 90, scale, SMOOTHING_ON );
         }
 
         else if (value == image->h) {
-	    scale = screenH/(image->h)-.1;
-	    //scale = 0.5;
-	    if (prevValue != image->h) {
-	        screen = SDL_SetVideoMode((image->w)*scale,
-			                  (image->h)*scale,
-			                  videoInfo->vfmt->BitsPerPixel,
-	    		                  SDL_SWSURFACE);
-	    }
-	    rot = rotozoomSurface( image, 0, scale, SMOOTHING_ON );
+		    scaleW = (double)((screenW-64)/(image->w));
+			scaleH = (double)((screenH-64)/(image->h));
+			if (scaleW < scaleH) {
+			    scale = scaleW;
+			}
+			else {
+			    scale = scaleH;
+			}
+			rot = rotozoomSurface( image, 0, scale, SMOOTHING_ON );
         }
 
         SDL_FreeSurface(image);
 
-        SDL_BlitSurface(rot, NULL, screen, 0);
+        SDL_BlitSurface(SDL_Surface *SDL_DisplayFormat(rot);, NULL, screen, 0);
 
-        //SDL_Flip(screen);
+        SDL_Flip(screen);
         //SDL_UpdateRect(screen, 0, 0, 0, 0);
 
         SDL_FreeSurface(rot);
