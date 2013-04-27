@@ -1,3 +1,35 @@
 sudo apt-get update
 sudo apt-get upgrade
 sudo apt-get install git-core build-essential gcc isc-dhcp-dev libsdl1.2-dev libsdl-gfx1.2-dev libsdl-image1.2-dev
+
+/* Update to latest raspberry pi firmware using rpi-update */
+sudo wget http://goo.gl/1BOfJ -O /usr/bin/rpi-update && sudo chmod +x /usr/bin/rpi-update
+sudo rpi-update
+sudo reboot
+
+/* Wait for Pi to reboot */
+git clone https://github.com/bass0324/Senior_Design.git
+cd Senior_Design/Wi-Fi\ Direct/rtl8192cu/Wifi_Direct_User_Interface/
+chmod +x ./install.sh
+./install.sh
+
+/* in order to connect to your tablet, adjust device.txt to your mac address for Wifi-Direct (gotten from android app) and run following */
+sudo ./NO_UI wlan0
+
+cd ../../../SDL/SDL/sdl_rpi/
+make clean
+make
+
+/* Setup ADB if you already don't have it in your path */
+cp ./adb /home/pi/Dev
+/* open .profile in your home directory with editor of choice (i.e vim or nano) and add line below to it*/
+vim ~/.profile
+if [ -d "$HOME/Dev" ] ; then
+  PATH="$PATH:$HOME/Dev"
+fi
+
+sudo reboot
+/* wait for Pi to reboot */
+
+./doAuto
+/* if connected to Wi-Fi Direct between devices, device screen should be seen on TV */
